@@ -1,37 +1,52 @@
 pipeline {
-    agent any
+   agent any
     environment{
-        MSG = "HELLO FROM ENVIRONMENT"
+        name = "app-test"
     }
-    stages {
-        stage('Git'){
-            steps {
-                git url: 'https://github.com/jabedhasan21/java-hello-world-with-maven.git'
-                sh 'java -version'
-            }
-        }
-        stage ('Compile'){
-          steps {
-              echo "${MSG}"
+   stages {
+      stage('git') {
+         steps {
+            // Get some code from a GitHub repository
+            git 'https://github.com/rockardmigu3/docker_jenkins.git'
+            sh 'ls -a'
+         }
+      }
+      stage('build spring'){
+          steps{
+              sh 'mvn clean install -e'
           }
-        }
-    }
-    post{
-        always {
-             echo 'This will always run'
-        }
-        success {
-            echo 'This will run only if successful'
-        }
-        failure {
-            echo 'This will run only if failed'
-        }
-        unstable {
-            echo 'This will run only if the run was marked as unstable'
-        }
-        changed {
-            echo 'This will run only if the state of the Pipeline has changed'
-            echo 'For example, if the Pipeline was previously failing but is now successful'
-        }
-    }
+      }
+      stage('run tests'){
+            steps{
+                sh 'mvn surefire:test test'
+            }
+            post {
+                success {
+                    junit 'target/surefire-reports/**/*.xml'
+                }
+            }
+      }
+      stage('run sonar'){
+          steps{
+              withSonarQubeEnv('sonar-jenkins-server') {
+                sh 'mvn clean package sonar:sonar'
+              }
+          }
+      }
+      stage('build docker file'){
+          steps {
+            sh 'docker build -t ${name}:${version} .'
+          }
+      }
+      stage('running docker service'){
+          steps{
+              sh 'docker run -dit --name teste_container -p 9090:9090 ${name}:${version}'
+          }
+      }
+      stage('just an ansible test'){
+          steps{
+              sh 'ansible 127.0.0.1 -m ping'
+          }
+      }
+   }
 }
