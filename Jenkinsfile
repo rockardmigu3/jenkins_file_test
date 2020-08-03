@@ -9,7 +9,7 @@ pipeline {
          steps {
             // Get some code from a GitHub repository
             git branch: 'master',
-                url: '${url_git}'
+                url: 'https://github.com/rockardmigu3/docker_jenkins.git'
             sh 'ls -a'
          }
       }
