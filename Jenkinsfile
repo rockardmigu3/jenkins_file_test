@@ -2,14 +2,14 @@ pipeline {
    agent any
     environment{
         name = "app-test"
-        url_git = "https://github.com/rockardmigu3/docker_jenkins.git"
+        url_path_url = "https://github.com/rockardmigu3/docker_jenkins.git"
     }
    stages {
       stage('git') {
          steps {
             // Get some code from a GitHub repository
-            git branch: 'master',
-               url: '${url_git}'
+            git branch: "master",
+               url: "${url_path_url}"
             sh 'ls -a'
          }
       }
@@ -55,7 +55,7 @@ pipeline {
        success {
            script {
                echo "Triggering job ClamAv"
-               build job: 'clamAV', parameters: [string(name: 'URL_GIT', value: "${url_git}")]
+               build job: 'clamAV', parameters: [string(name: 'URL_GIT', value: "${url_path_url}")]
            }
        }
        always {
