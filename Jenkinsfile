@@ -8,7 +8,8 @@ pipeline {
       stage('git') {
          steps {
             // Get some code from a GitHub repository
-            git '${url_git}'
+            git branch: 'master',
+                url: '${url_git}'
             sh 'ls -a'
          }
       }
