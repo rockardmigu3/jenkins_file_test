@@ -1,13 +1,14 @@
 pipeline {
    agent any
     environment{
-        name = "app-test"
+        name = 'app-test'
+        url_git = 'https://github.com/rockardmigu3/docker_jenkins.git'
     }
    stages {
       stage('git') {
          steps {
             // Get some code from a GitHub repository
-            git 'https://github.com/rockardmigu3/docker_jenkins.git'
+            git '${url_git}'
             sh 'ls -a'
          }
       }
@@ -48,5 +49,28 @@ pipeline {
               sh 'ansible 127.0.0.1 -m ping'
           }
       }
+   }
+   post{
+       success {
+           script {
+               echo "Triggering job ClamAv"
+               build job: 'clamAV', parameters: [string(name: 'URL_GIT', value: "${url_git}")]
+           }
+       }
+       always {
+               cucumber buildStatus: 'UNSTABLE',
+                       failedFeaturesNumber: 1,
+                       failedScenariosNumber: 1,
+                       skippedStepsNumber: 1,
+                       failedStepsNumber: 1,
+                       classifications: [
+                               [key: 'Commit', value: '<a href="${GERRIT_CHANGE_URL}">${GERRIT_PATCHSET_REVISION}</a>'],
+                               [key: 'Submitter', value: '${GERRIT_PATCHSET_UPLOADER_NAME}']
+                       ],
+                       reportTitle: 'My report',
+                       fileIncludePattern: '**/*cucumber-report.json',
+                       sortingMethod: 'ALPHABETICAL',
+                       trendsLimit: 100
+           }
    }
 }
