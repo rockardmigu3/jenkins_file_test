@@ -1,15 +1,15 @@
 pipeline {
    agent any
     environment{
-        name = 'app-test'
-        url_git = 'https://github.com/rockardmigu3/docker_jenkins.git'
+        name = "app-test"
+        url_git = "https://github.com/rockardmigu3/docker_jenkins.git"
     }
    stages {
       stage('git') {
          steps {
             // Get some code from a GitHub repository
             git branch: 'master',
-                url: 'https://github.com/rockardmigu3/docker_jenkins.git'
+               url: '${url_git}'
             sh 'ls -a'
          }
       }
@@ -69,7 +69,7 @@ pipeline {
                                [key: 'Submitter', value: '${GERRIT_PATCHSET_UPLOADER_NAME}']
                        ],
                        reportTitle: 'My report',
-                       fileIncludePattern: '**/*cucumber-report.json',
+                       fileIncludePattern: 'target/cucumber/cucumber-report.json',
                        sortingMethod: 'ALPHABETICAL',
                        trendsLimit: 100
            }
